@@ -1,0 +1,551 @@
+THE PROJECT IS FOR THE TRAINEES TO UNDERSTAND THE BASIC FLOW OF A SPRINGBOOT APPLICATION. TRY TO CREATE A SIMPLE PROJECT AT YOUR END
+BY LOOKING AT THIS EXAMPLE.VERY ESSENTIAL TO UNDERSTAND THE FLOW........
+HAPPY LEARNING !!!!!!!!!!!!. THIS PART1 WHERE WE DONT HAVE LOGGER AND AOP IN THE PROJECT AND ALSO NO TESTCASES WITH JUNIT AND MOCKITO.
+WE WILL SEE THOSE THINGS IN THE SUBSEQUENT PROJECTS.
+
+
+
+1) The demo example is named as springdatademo project.
+2) The dependencies added are:-
+   * Spring data JPA
+   * MySQL driver
+3) The package created is com.example. As the project name is springdatademo.
+   So the springboot starter class is with the name SpringdatademoApplication.
+4) Implement CommandLineRunner interface with SpringdataApplication class and override    the run method.
+5) We will develop a simple CRUD application which will Create/Add/Insert data in 
+   the MySQL database.
+6) Create the required packages. Please be careful while creating the package
+   because the classes are searched under com.example or its sub-packages.
+7) Let us plan for the packages as 
+   com.example.repository
+   com.example.service
+   com.example.exception
+   com.example.entity
+   com.example.dto
+   com.example.validator
+[ Currently not using logger and Aspect in the code ]
+8) Create the database and table by executing the sql script file.
+9) Update the application.properties for the database connection related property settings and for the success and error messages.
+10) First create Entity class and DTO class. The member variables or instance variables of Entity and DTO class will be same.
+11) Implement the required toString(), hashCode(), equals() method alongwith the constructors in these two classes.
+package com.example.entity;
+
+
+[Note: Dont miss the minimal annotations which are required in the Entity class. @Entity and @Id. The Entity class will be mapped
+to a table in database and the attribute with @Id will have corresponding column as primary key in the table.
+12) Create the exception class extending Exception and write the parameterised constructor passing a String.
+package com.example.exception;
+
+
+
+13) Create the Repository interface extending CrudRepository ( Which is a predefined interface and part of Spring Data).
+    Change the generic parameters as the name of the Entity class and the datatype of the attribute annoted with @Id. 
+    package com.example.repository;
+
+import org.springframework.data.repository.CrudRepository;
+import com.example.entity.Customer;
+public interface CustomerRepository extends CrudRepository<Customer, Integer> {}
+
+14) Implement the service layer. Have an interface and a class for the same.Put the annotation @Service and @Trasactional with the service class.
+While writing the methods , plan for the return type and parameters. Try to justify yourself why we are keeping the return type as
+void or DTO object or DTO List. Similary with the method parameters.
+15) Autowire Repository with service class.
+
+
+16) In this project , the following are the methods of CrudRepository we have used.
+customerRepository.save(customer); =========================================> Create a record in the table
+customerRepository.findById(customerId).get();==============================> Search a record based on id
+customerRepository.findAll(); ==============================================> Get all the records from the table
+customerRepository.deleteById(customerId);==================================> Delete record from the table
+For delete we dont use any method because when we find the record for update. It is managed Entity/object. This means the object
+is mapped/linked with the corresponding record in the table. So if we update the object , the corresponding record in the table
+will be updated. We have changed the email of the customer.
+
+---------------------------------------------------------------------------------------------------------------------------
+THE SEQUENCE OF THE FILES ARE GIVEN IN THE WAY I THINK WILL HELP US TO RELATE. IN THIS SEQUENCE WE CAN CREATE OR UPDATE THE FILES.
+
+* First pom.xml should be checked for the dependencies.
+* application.properties file should be updated.
+* I should execute the script file so my table/tables are created in the database.
+* The entity class should be created because that maps with the table.
+* The dto class should be designed as it is similar to entity class and responsible as data carrier.
+* I should create the Repository Interface.
+* Create the Exception class.
+* I should write the Service related class and interface.
+* Lastly I should update the SpringApplication class So that I can start executing my aplication.
+
+
+
+pom.xml
+
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 https://maven.apache.org/xsd/maven-4.0.0.xsd">
+	<modelVersion>4.0.0</modelVersion>
+	<parent>
+		<groupId>org.springframework.boot</groupId>
+		<artifactId>spring-boot-starter-parent</artifactId>
+		<version>2.7.2</version>
+		<relativePath/> <!-- lookup parent from repository -->
+	</parent>
+	<groupId>com.example</groupId>
+	<artifactId>springdatademo</artifactId>
+	<version>0.0.1-SNAPSHOT</version>
+	<name>springdatademo</name>
+	<description>Demo project for Spring Boot</description>
+	<properties>
+		<java.version>11</java.version>
+	</properties>
+	<dependencies>
+		<dependency>
+			<groupId>org.springframework.boot</groupId>
+			<artifactId>spring-boot-starter-data-jpa</artifactId>
+		</dependency>
+
+		<dependency>
+			<groupId>mysql</groupId>
+			<artifactId>mysql-connector-java</artifactId>
+			<scope>runtime</scope>
+		</dependency>
+		<dependency>
+			<groupId>org.springframework.boot</groupId>
+			<artifactId>spring-boot-starter-test</artifactId>
+			<scope>test</scope>
+		</dependency>
+	</dependencies>
+
+	<build>
+		<plugins>
+			<plugin>
+				<groupId>org.springframework.boot</groupId>
+				<artifactId>spring-boot-maven-plugin</artifactId>
+			</plugin>
+		</plugins>
+	</build>
+
+</project>
+----------------------------------------------------------------------------------------------------------------
+application.properties file
+
+Validator.INVALID_ID=Customer Id is Invalid
+Validator.INVALID_EMAIL=Customer's email is Invalid
+Validator.INVALID_NAME=Customer's name is Invalid
+serInterface.INSERT_SUCCESS=Customer details successfully added.
+UserInterface.UPDATE_SUCCESS=Customer details successfully updated.
+
+Service.CUSTOMER_NOT_FOUND=Customer not found. Give valid customer details.
+Service.CUSTOMERS_NOT_FOUND=No customers found.
+Service.CUSTOMER_FOUND=Customer already present.
+
+
+# MySQL settings
+#Change these settings according to database you are using
+spring.datasource.url=jdbc:mysql://localhost:3306/customer_db
+spring.datasource.username=root
+
+#If MySQL installation is password protected,then use below property to set password
+spring.datasource.password=password@123
+#JPA settings
+spring.jpa.show-sql=true
+spring.jpa.properties.hibernate.format_sql=true
+------------------------------------------------------------------------------------------------------------------------------
+tablescript.sql
+
+drop database if exists customer_db;
+create database customer_db;
+use  customer_db;
+
+
+create table customer(
+   customer_id int,
+   email_id varchar(50),
+   name varchar(20),
+   date_of_birth date,
+   constraint ps_customer_id_pk primary key (customer_id)
+);
+
+
+insert into customer (customer_id, email_id, name, date_of_birth) values (1, 'martin@infy.com', 'Martin', sysdate()- interval 9000 day);
+insert into customer (customer_id, email_id, name, date_of_birth) values (2, 'tim@infy.com', 'Tim', sysdate()- interval 5000 day);
+insert into customer (customer_id, email_id, name, date_of_birth) values (3, 'jack@infy.com', 'Jack', sysdate()- interval 6000 day);
+
+commit;
+select * from customer
+-----------------------------------------------------------------------------------------------------------------------------
+Customer.java
+
+package com.example.entity;
+import java.time.LocalDate;
+import javax.persistence.Entity;
+import javax.persistence.Id;
+
+@Entity
+public class Customer {
+	@Id
+	private Integer customerId;
+	private String emailId;
+	private String name;
+	private LocalDate dateOfBirth;
+
+	public Integer getCustomerId() {
+		return customerId;
+	}
+
+	public void setCustomerId(Integer customerId) {
+		this.customerId = customerId;
+	}
+
+	public String getEmailId() {
+		return emailId;
+	}
+
+	public void setEmailId(String emailId) {
+		this.emailId = emailId;
+	}
+
+	public String getName() {
+		return name;
+	}
+
+	public void setName(String name) {
+		this.name = name;
+	}
+
+	public LocalDate getDateOfBirth() {
+		return dateOfBirth;
+	}
+
+	public void setDateOfBirth(LocalDate dateOfBirth) {
+		this.dateOfBirth = dateOfBirth;
+	}
+
+	@Override
+	public int hashCode() {
+		final int prime = 31;
+		int result = 1;
+		result = prime * result + ((this.getCustomerId() == null) ? 0 : this.getCustomerId().hashCode());
+		return result;
+	}
+
+	@Override
+	public boolean equals(Object obj) {
+		if (this == obj)
+			return true;
+		if (obj == null)
+			return false;
+		if (getClass() != obj.getClass())
+			return false;
+		Customer other = (Customer) obj;
+		if (this.getCustomerId() == null) {
+			if (other.getCustomerId() != null)
+				return false;
+		} 
+		else if (!this.getCustomerId().equals(other.getCustomerId()))
+			return false;
+		return true;
+	}
+
+	@Override
+	public String toString() {
+		return "Customer [customerId=" + customerId + ", emailId=" + emailId + ", name=" + name + ", dateOfBirth="
+				+ dateOfBirth + "]";
+	}
+
+}
+------------------------------------------------------------------------------------------------------------------------
+package com.example.dto;
+
+import java.time.LocalDate;
+
+public class CustomerDTO {
+
+	private Integer customerId;
+	private String emailId;
+	private String name;
+	private LocalDate dateOfBirth;
+
+	public Integer getCustomerId() {
+		return customerId;
+	}
+
+	public void setCustomerId(Integer customerId) {
+		this.customerId = customerId;
+	}
+
+	public String getEmailId() {
+		return emailId;
+	}
+
+	public void setEmailId(String emailId) {
+		this.emailId = emailId;
+	}
+
+	public String getName() {
+		return name;
+	}
+
+	public void setName(String name) {
+		this.name = name;
+	}
+
+	public LocalDate getDateOfBirth() {
+		return dateOfBirth;
+	}
+
+	public void setDateOfBirth(LocalDate dateOfBirth) {
+		this.dateOfBirth = dateOfBirth;
+	}
+
+
+	@Override
+	public String toString() {
+		return "Customer [customerId=" + customerId + ", emailId=" + emailId + ", name=" + name + ", dateOfBirth="
+				+ dateOfBirth + "]";
+	}
+	
+}
+
+-----------------------------------------------------------------------------------------------------------------------
+CustomerRepository.java
+
+package com.example.repository;
+import org.springframework.data.repository.CrudRepository;
+import com.example.entity.Customer;
+public interface CustomerRepository extends CrudRepository<Customer, Integer> {
+
+}
+-------------------------------------------------------------------------------------------------------------------------
+CustomerException.java
+
+package com.example.exception;
+
+public class CustomerException extends Exception {
+
+	public CustomerException(String message) {
+		super(message);
+	}
+}
+------------------------------------------------------------------------------------------------------------------------
+CustomerService.java
+
+package com.example.service;
+
+import java.util.List;
+
+import com.example.dto.CustomerDTO;
+import com.example.exception.CustomerException;
+
+
+public interface CustomerService {
+	public void addCustomer(CustomerDTO customer) throws CustomerException;
+	public CustomerDTO getCustomer(Integer customerId) throws CustomerException;
+	public List<CustomerDTO> findAll() throws CustomerException;
+	public void updateCustomer(Integer customerId, String emailId) throws CustomerException;
+	public void deleteCustomer(Integer customerId)throws CustomerException;
+}
+
+------------------------------------------------------------------------------------------------------------
+CustomerServiceImpl.java
+
+package com.example.service;
+
+import java.util.ArrayList;
+import java.util.List;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
+
+import com.example.dto.CustomerDTO;
+import com.example.entity.Customer;
+import com.example.exception.CustomerException;
+import com.example.repository.CustomerRepository;
+import com.example.validator.Validator;
+
+
+@Service
+@Transactional
+public class CustomerServiceImpl implements CustomerService {
+
+	@Autowired
+	private CustomerRepository customerRepository;
+
+	@Override
+	public void addCustomer(CustomerDTO customerDTO) throws CustomerException {
+		Validator.validate(customerDTO);
+		/*
+		 * Customer customerSearched =
+		 * customerRepository.findById(customerDTO.getCustomerId()).get(); if
+		 * (customerSearched != null) { throw new
+		 * CustomerException("Service.CUSTOMER_FOUND"); }
+		 */
+		Customer customer = new Customer();
+		customer.setCustomerId(customerDTO.getCustomerId());
+		customer.setName(customerDTO.getName());
+		customer.setEmailId(customerDTO.getEmailId());
+		customer.setDateOfBirth(customerDTO.getDateOfBirth());
+		customerRepository.save(customer);
+	}
+
+	@Override
+	public CustomerDTO getCustomer(Integer customerId) throws CustomerException {
+
+		Customer customerSearched = customerRepository.findById(customerId).get();
+		if (customerSearched == null) {
+			throw new CustomerException("Service.CUSTOMER_NOT_FOUND");
+		}
+		CustomerDTO customerDTO = new CustomerDTO();
+		customerDTO.setCustomerId(customerSearched.getCustomerId());
+		customerDTO.setName(customerSearched.getName());
+		customerDTO.setEmailId(customerSearched.getEmailId());
+		customerDTO.setDateOfBirth(customerSearched.getDateOfBirth());
+		return customerDTO;
+	}
+
+	@Override
+	public List<CustomerDTO> findAll() throws CustomerException {
+		List<CustomerDTO> customerDTOList = new ArrayList<>();
+		Iterable<Customer> customerList = customerRepository.findAll();
+		for (Customer customer : customerList) {
+			CustomerDTO customerDTO = new CustomerDTO();
+			customerDTO.setCustomerId(customer.getCustomerId());
+			customerDTO.setName(customer.getName());
+			customerDTO.setEmailId(customer.getEmailId());
+			customerDTO.setDateOfBirth(customer.getDateOfBirth());
+			customerDTOList.add(customerDTO);
+		}
+		if (customerDTOList.isEmpty()) {
+			throw new CustomerException("Service.CUSTOMERS_NOT_FOUND");
+		}
+
+		return customerDTOList;
+	}
+
+	@Override
+	public void updateCustomer(Integer customerId, String emailId) throws CustomerException {
+		Customer customerSearched = customerRepository.findById(customerId).get();
+		if (customerSearched == null) {
+			throw new CustomerException("Service.CUSTOMER_FOUND");
+		}
+		customerSearched.setEmailId(emailId);
+	}
+
+	@Override
+	public void deleteCustomer(Integer customerId) throws CustomerException {
+		Customer customerSearched = customerRepository.findById(customerId).get();
+		if (customerSearched == null) {
+			throw new CustomerException("Service.CUSTOMER_NOT_FOUND");
+		}
+		customerRepository.deleteById(customerId);
+	}
+
+}
+------------------------------------------------------------------------------------------------------
+
+-------------------------------------------------------------------------------------------------------------------------------
+
+
+
+ SpringdatademoApplication.java
+
+package com.example;
+
+import java.time.LocalDate;
+import java.util.List;
+
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.CommandLineRunner;
+import org.springframework.boot.SpringApplication;
+import org.springframework.boot.autoconfigure.SpringBootApplication;
+import org.springframework.core.env.Environment;
+
+import com.example.dto.CustomerDTO;
+import com.example.exception.CustomerException;
+import com.example.service.CustomerService;
+
+@SpringBootApplication
+public class SpringdatademoApplication implements CommandLineRunner {
+
+	@Autowired
+	private CustomerService customerService;
+
+	@Autowired
+	private Environment environment;
+
+	public static void main(String[] args) {
+		SpringApplication.run(SpringdatademoApplication.class, args);
+	}
+
+	@Override
+	public void run(String... args) throws Exception {
+		//addCustomer();
+		//findCustomer();
+		findAllCustomer();
+		//updateCustomer();
+		//deleteCustomer();
+
+	}
+
+	private void deleteCustomer() {
+		try {
+			customerService.deleteCustomer(10);
+		} catch (CustomerException e) {
+			System.out.println(environment.getProperty(e.getMessage()));
+		}
+
+	}
+
+	private void updateCustomer() {
+		try {
+			customerService.updateCustomer(10, "akash01@infy.com");
+		} catch (CustomerException e) {
+			System.out.println(environment.getProperty(e.getMessage()));
+		}
+
+	}
+
+	private void findAllCustomer() {
+		try {
+			List<CustomerDTO> customerDTOList = customerService.findAll();
+			System.out.println(customerDTOList);
+		} catch (CustomerException e) {
+
+			System.out.println(environment.getProperty(e.getMessage()));
+		}
+
+	}
+
+	
+	private void findCustomer() {
+		try {
+			CustomerDTO customerDTO = customerService.getCustomer(1);
+			System.out.println(customerDTO);
+		} catch (CustomerException e) {
+			System.out.println(environment.getProperty(e.getMessage()));
+		}
+
+	}
+
+	private void addCustomer() {
+		try {
+			CustomerDTO customerDTO = new CustomerDTO();
+			customerDTO.setCustomerId(10);
+			customerDTO.setName("Akash Kumar");
+			customerDTO.setEmailId("akash@infy.com");
+			customerDTO.setDateOfBirth(LocalDate.of(1980, 10, 20));
+
+			customerService.addCustomer(customerDTO);
+		} catch (CustomerException e) {
+
+			System.out.println(environment.getProperty(e.getMessage()));
+		}
+
+	}
+
+}
+
+----------------------------------------------------------------------------------------------------------------------------
+
+
+-----------------------------------------------------------------------------------------------------------------------
+
+
