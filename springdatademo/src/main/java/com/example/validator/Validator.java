@@ -16,7 +16,7 @@ public class Validator {
 		{
 			message="Validator.INVALID_ID";
 		}
-		if(!validateCustomerId(customerDTO.getEmailId()))
+		if(!validateCustomerEmail(customerDTO.getEmailId()))
 		{
 			message="Validator.INVALID_EMAIL";
 		}
@@ -24,11 +24,8 @@ public class Validator {
 		{
 			message="Validator.INVALID_NAME";
 		}
-		if(!validateCustomerName(customerDTO.getName()))
-		{
-			message="Validator.INVALID_EMAIL";
-		}
-		if(!validateCustomerName(customerDTO.getDateOfBirth()))
+		
+		if(!validateCustomerDOB(customerDTO.getDateOfBirth()))
 		{
 			message="Validator.INVALID_DOB";
 		}
@@ -38,7 +35,7 @@ public class Validator {
 	
 	}
 
-	private static boolean validateCustomerName(LocalDate dateOfBirth) {
+	private static boolean validateCustomerDOB(LocalDate dateOfBirth) {
 		
 		return dateOfBirth.isBefore(LocalDate.now()) ? true : false;
 	}
@@ -49,7 +46,7 @@ public class Validator {
 				
 	}
 
-	private static boolean validateCustomerId(String emailId) {
+	private static boolean validateCustomerEmail(String emailId) {
 		return emailId.matches("^[a-z]+@infy\\.com$") ? true : false;
 	}
 
